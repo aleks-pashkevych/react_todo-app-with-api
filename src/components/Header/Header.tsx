@@ -39,7 +39,6 @@ export const Header: React.FC<Props> = ({
   ErrorMessages,
 }) => {
   const [title, setTitle] = useState('');
-  // const [isFocused, setIsFocused] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,10 +47,6 @@ export const Header: React.FC<Props> = ({
       inputRef.current?.focus();
     }
   }, [isAdding, isLoading, todos]);
-
-  // useEffect(() => {
-  //   inputRef.current?.focus();
-  // }, []);
 
   const addTodo = async () => {
     const trimmedTitle = title.trim();
@@ -112,6 +107,8 @@ export const Header: React.FC<Props> = ({
       setTempTodo(tempTodo);
     }
   };
+  //! Title Change
+  // const handleTitleChange = (todo.id, newTodTitle) => {};
 
   return (
     <header className="todoapp__header">

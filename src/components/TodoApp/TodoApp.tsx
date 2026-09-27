@@ -5,6 +5,7 @@ import { Todo } from '../../types/Todo';
 import { client } from '../../utils/fetchClient';
 import { Loader } from '../Loader';
 import { useState } from 'react';
+import { TodoItem } from '../TodoItem';
 
 type Props = {
   todos: Todo[] | null;
@@ -65,41 +66,16 @@ export const TodoApp: React.FC<Props> = ({
       {filteredTodos &&
         filteredTodos.map(el => {
           return (
-            <div
-              data-cy="Todo"
-              className={`todo ${el.completed ? 'completed' : ''}`}
+            <TodoItem
+              todo={el}
+              title={title}
+              setTitle={setTitle}
+              deletedId={deletedId}
+              setDeletedId={setDeletedId}
+              removeTodo={removeTodo}
               key={el.id}
-            >
-              <label className="todo__status-label">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className={`todo__status ${el.completed ? 'completed' : ''}`}
-                  checked={el.completed}
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                />
-              </label>
-
-              <span data-cy="TodoTitle" className="todo__title">
-                {el.title}
-              </span>
-
-              {/* Remove button appears only on hover */}
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => {
-                  setDeletedId(el.id);
-                  removeTodo(el.id);
-                }}
-              >
-                ×
-              </button>
-
-              <Loader isLoading={el.id === deletedId} />
-            </div>
+              el={el}
+            />
           );
         })}
       {tempTodo !== null ? (
