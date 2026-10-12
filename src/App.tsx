@@ -12,6 +12,7 @@ import { Footer } from './components/footer';
 import { ErrorNotification } from './components/ErrorNotification';
 import { Header } from './components/Header';
 import { TodoApp } from './components/TodoApp/TodoApp';
+// import { Loader } from './components/Loader';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | null>(null);
@@ -114,7 +115,7 @@ export const App: React.FC = () => {
           <Footer
             todos={todos}
             setTodos={setTodos}
-            setIsLoading={setIsLoading}
+            // setIsLoading={setIsLoading}
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
             setIsError={setIsError}

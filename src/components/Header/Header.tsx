@@ -22,6 +22,7 @@ type Props = {
     Empty: string;
     Add: string;
     Delete: string;
+    Update: string;
   };
 };
 
@@ -39,6 +40,7 @@ export const Header: React.FC<Props> = ({
   ErrorMessages,
 }) => {
   const [title, setTitle] = useState('');
+  const allCompleted = todos?.every(todo => todo.completed) || false;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -107,16 +109,42 @@ export const Header: React.FC<Props> = ({
       setTempTodo(tempTodo);
     }
   };
-  //! Title Change
-  // const handleTitleChange = (todo.id, newTodTitle) => {};
+
+  const toggleTodos = () => {
+    let revCompl = false;
+
+    setIsLoading(true);
+
+    if (todos?.every(todo => todo.completed === true)) {
+      revCompl = false;
+    } else {
+      revCompl = true;
+    }
+
+    try {
+      Promise.all(
+        todos.map(el => {
+          client.patch(`/todos/${el.id}`, { completed: revCompl });
+        }),
+      );
+      setTodos(prev => prev.map(todo => ({ ...todo, completed: revCompl })));
+    } catch {
+      // error handling
+    } finally {
+      setIsLoading(false);
+    }
+
+    setTodos(prev => prev.map(todo => ({ ...todo, completed: revCompl })));
+  };
 
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={`todoapp__toggle-all ${allCompleted}`}
         data-cy="ToggleAllButton"
+        onClick={toggleTodos}
       />
 
       {/* Add a todo on form submit */}

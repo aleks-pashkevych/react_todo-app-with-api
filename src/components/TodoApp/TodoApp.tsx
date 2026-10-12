@@ -3,13 +3,14 @@
 
 import { Todo } from '../../types/Todo';
 import { client } from '../../utils/fetchClient';
+// import { patchTodo } from '../../api/todos';
 import { Loader } from '../Loader';
 import { useState } from 'react';
 import { TodoItem } from '../TodoItem';
 
 type Props = {
   todos: Todo[] | null;
-  setTodos: (todos: Todo[]) => void;
+  setTodos: (todos: Todo[] | null) => void;
   setIsError: (bol: boolean) => void;
   tempTodo: Todo | null;
   isLoading: boolean;
@@ -19,7 +20,7 @@ type Props = {
   statusFilter: string;
   isError: boolean;
   USER_ID: number;
-  ErrorMessages: { None: string; Delete: string };
+  ErrorMessages: { None: string; Delete: string; Update: string };
   setErrorMessage: (msg: string) => void;
 };
 
@@ -46,18 +47,75 @@ export const TodoApp: React.FC<Props> = ({
     return true;
   });
   const [title, setTitle] = useState('');
-  const [deletedId, setDeletedId] = useState(0);
+  const [deletedId, setDeletedId] = useState<number | null>(0);
+  // const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const removeTodo = async (id: number) => {
     setIsLoading(true);
     try {
       await client.delete(`/todos/${id}`);
-      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
+      setTodos(
+        currentTodos => currentTodos?.filter(todo => todo.id !== id) || [],
+      );
     } catch (error) {
       setIsError(true);
       setErrorMessage(ErrorMessages.Delete);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const onUpdateStatus = async (el: Todo) => {
+    const revCompl = !el.completed;
+
+    setIsLoading(true);
+
+    try {
+      await client.patch(`/todos/${el.id}`, { completed: revCompl });
+      setTodos(currentTodos =>
+        currentTodos.map(todo =>
+          todo.id === el.id ? { ...todo, completed: revCompl } : todo,
+        ),
+      );
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage(ErrorMessages.Update);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addLoadingId = (id: number) => {
+    setLoadingTodoIds(prev => [...prev, id]);
+  };
+
+  const removeLoadingId = (id: number) => {
+    setLoadingTodoIds(prev => prev.filter(loadingId => loadingId !== id));
+  };
+
+  const handleToggleStatus = async (todoToUpdate: Todo) => {
+    // 1. Set loading state BEFORE async call
+    addLoadingId(todoToUpdate.id);
+    setIsError(false);
+
+    try {
+      const updatedTodo = await client.patch<Todo>(
+        `/todos/${todoToUpdate.id}`,
+        {
+          completed: !todoToUpdate.completed,
+        },
+      );
+
+      setTodos(prevTodos =>
+        prevTodos
+          ? prevTodos.map(t => (t.id === updatedTodo.id ? updatedTodo : t))
+          : [],
+      );
+    } catch {
+      setIsError(true);
+      setErrorMessage(ErrorMessages.Update);
+    } finally {
+      removeLoadingId(todoToUpdate.id);
     }
   };
 
@@ -71,10 +129,12 @@ export const TodoApp: React.FC<Props> = ({
               title={title}
               setTitle={setTitle}
               deletedId={deletedId}
+              onUpdateStatus={onUpdateStatus}
               setDeletedId={setDeletedId}
               removeTodo={removeTodo}
               key={el.id}
               el={el}
+              onToggleStatus={handleToggleStatus}
             />
           );
         })}

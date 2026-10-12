@@ -18,3 +18,6 @@ export const deleteTodo = (id: number) => {
 };
 
 // Add more methods here
+export const patchTodo = (id: string, {}) => {
+  return client.patch(`/todos/${id}`, { completed: !completed });
+};
