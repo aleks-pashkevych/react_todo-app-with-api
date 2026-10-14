@@ -110,42 +110,44 @@ export const Header: React.FC<Props> = ({
     }
   };
 
-  const toggleTodos = () => {
-    let revCompl = false;
+  const toggleTodos = async () => {
+    const hasUncompleted = todos?.some(todo => !todo.completed);
+    const targetStatus = hasUncompleted ? true : false;
+    const todosToUpdate =
+      todos?.filter(todo => todo.completed !== targetStatus) || [];
 
     setIsLoading(true);
-
-    if (todos?.every(todo => todo.completed === true)) {
-      revCompl = false;
-    } else {
-      revCompl = true;
-    }
+    setIsError(false);
 
     try {
-      Promise.all(
-        todos.map(el => {
-          client.patch(`/todos/${el.id}`, { completed: revCompl });
-        }),
+      await Promise.all(
+        todosToUpdate.map(el =>
+          client.patch(`/todos/${el.id}`, { completed: targetStatus }),
+        ),
       );
-      setTodos(prev => prev.map(todo => ({ ...todo, completed: revCompl })));
-    } catch {
-      // error handling
+
+      setTodos(prev =>
+        prev.map(todo => ({ ...todo, completed: targetStatus })),
+      );
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage(ErrorMessages.Update);
     } finally {
       setIsLoading(false);
     }
-
-    setTodos(prev => prev.map(todo => ({ ...todo, completed: revCompl })));
   };
 
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={`todoapp__toggle-all ${allCompleted}`}
-        data-cy="ToggleAllButton"
-        onClick={toggleTodos}
-      />
+      {todos && todos.length > 0 && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${allCompleted ? 'active' : ''}`}
+          data-cy="ToggleAllButton"
+          onClick={toggleTodos}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form

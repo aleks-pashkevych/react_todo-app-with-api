@@ -48,7 +48,7 @@ export const TodoApp: React.FC<Props> = ({
   });
   const [title, setTitle] = useState('');
   const [deletedId, setDeletedId] = useState<number | null>(0);
-  // const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const removeTodo = async (id: number) => {
     setIsLoading(true);
@@ -85,9 +85,9 @@ export const TodoApp: React.FC<Props> = ({
     }
   };
 
-  const addLoadingId = (id: number) => {
-    setLoadingTodoIds(prev => [...prev, id]);
-  };
+  // const addLoadingId = (id: number) => {
+  //   setLoadingTodoIds(prev => [...prev, id]);
+  // };
 
   const removeLoadingId = (id: number) => {
     setLoadingTodoIds(prev => prev.filter(loadingId => loadingId !== id));
@@ -95,7 +95,8 @@ export const TodoApp: React.FC<Props> = ({
 
   const handleToggleStatus = async (todoToUpdate: Todo) => {
     // 1. Set loading state BEFORE async call
-    addLoadingId(todoToUpdate.id);
+    setLoadingTodoIds(current => [...current, todoToUpdate.id]);
+    // addLoadingId(todoToUpdate.id);
     setIsError(false);
 
     try {
@@ -111,9 +112,10 @@ export const TodoApp: React.FC<Props> = ({
           ? prevTodos.map(t => (t.id === updatedTodo.id ? updatedTodo : t))
           : [],
       );
-    } catch {
+    } catch (error) {
       setIsError(true);
       setErrorMessage(ErrorMessages.Update);
+      throw new Error();
     } finally {
       removeLoadingId(todoToUpdate.id);
     }
@@ -135,6 +137,9 @@ export const TodoApp: React.FC<Props> = ({
               key={el.id}
               el={el}
               onToggleStatus={handleToggleStatus}
+              loadingTodoIds={loadingTodoIds}
+              setIsError={setIsError}
+              setErrorMessage={setErrorMessage}
             />
           );
         })}
