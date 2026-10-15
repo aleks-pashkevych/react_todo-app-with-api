@@ -63,6 +63,7 @@ export const TodoItem: React.FC<Props> = ({
     // setNewTitle(trimmedTitle);
 
     if (!trimmedTitle) {
+      setDeletedId(todo.id);
       removeTodo(todo.id);
 
       return;
@@ -99,17 +100,11 @@ export const TodoItem: React.FC<Props> = ({
     <div
       data-cy="Todo"
       className={`todo ${todo.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`}
-      onDoubleClick={() => {
-        setIsEditing(true);
-      }}
+      // onDoubleClick={() => {
+      //   setIsEditing(true);
+      // }}
     >
-      <label
-        htmlFor="status"
-        className="todo__status-label"
-        // onClick={() => {
-        //   onUpdateStatus(todo);
-        // }}
-      >
+      <label htmlFor="status" className="todo__status-label">
         <input
           id="todo-status"
           data-cy="TodoStatus"
@@ -131,9 +126,10 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoTitleField"
           value={newTitle}
           type="text"
-          className="todo-title-field"
+          className="todo__title-field"
           onChange={e => setNewTitle(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={handleSave}
           ref={editInputRef}
         />
       ) : (
