@@ -121,6 +121,27 @@ export const TodoApp: React.FC<Props> = ({
     }
   };
 
+  const handleUpdateTitle = async (todoToUpdate: Todo, newTitle: string) => {
+    setIsError(false);
+
+    try {
+      const updatedTodo = await client.patch<Todo>(
+        `/todos/${todoToUpdate.id}`,
+        { title: newTitle },
+      );
+
+      setTodos(prevTodos =>
+        prevTodos
+          ? prevTodos.map(t => (t.id === updatedTodo.id ? updatedTodo : t))
+          : [],
+      );
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage(ErrorMessages.Update);
+      throw error; // Обязательно пробрасываем ошибку, чтобы срабатывал catch в TodoItem
+    }
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodos &&
@@ -140,6 +161,7 @@ export const TodoApp: React.FC<Props> = ({
               loadingTodoIds={loadingTodoIds}
               setIsError={setIsError}
               setErrorMessage={setErrorMessage}
+              onUpdateTitle={handleUpdateTitle}
             />
           );
         })}

@@ -2,7 +2,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 // import React, { useState, useRef, useEffect } from 'react';
 import { useEffect, useState, useRef } from 'react';
-import { client } from '../../utils/fetchClient';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/';
 
@@ -22,6 +21,7 @@ type Props = {
   ErrorMessages: { None: string; Delete: string; Update: string };
   setErrorMessage: (msg: string) => void;
   setIsError: (err: boolean) => void;
+  onUpdateTitle: (todo: Todo, newTitle: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -29,38 +29,38 @@ export const TodoItem: React.FC<Props> = ({
   title,
   setTitle,
   isLoading,
-  onUpdateStatus,
+  onUpdateTitle,
   // onDelete
   removeTodo,
   deletedId,
   setDeletedId,
-  el,
   onToggleStatus,
   loadingTodoIds,
   ErrorMessages,
   setErrorMessage,
   setIsError,
 }) => {
-  const isThisTodoLoading =
-    loadingTodoIds.includes(todo.id) || todo.id == deletedId || isLoading;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const updateTitle = trimmedTitle => {
-    client.patch(`/todos/${todo.id}`, { title: trimmedTitle });
-  };
+  const isThisTodoLoading =
+    loadingTodoIds.includes(todo.id) ||
+    todo.id == deletedId ||
+    isLoading ||
+    isUpdating;
 
   useEffect(() => {
     if (isEditing) {
-      editInputRef.current.focus();
+      editInputRef.current?.focus();
     }
   }, [isEditing]);
 
   const handleSave = async () => {
     const trimmedTitle = newTitle.trim();
 
-    setNewTitle(trimmedTitle);
+    // setNewTitle(trimmedTitle);
 
     if (!trimmedTitle) {
       removeTodo(todo.id);
@@ -75,22 +75,40 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     try {
-      await updateTitle(trimmedTitle);
+      setIsUpdating(true);
+      await onUpdateTitle(todo, trimmedTitle);
       setIsEditing(false);
     } catch {
       setErrorMessage(ErrorMessages.Update);
       setIsError(true);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSave();
+    } else if (event.key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle(todo.title);
     }
   };
 
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div
+      data-cy="Todo"
+      className={`todo ${todo.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`}
+      onDoubleClick={() => {
+        setIsEditing(true);
+      }}
+    >
       <label
         htmlFor="status"
         className="todo__status-label"
-        onClick={() => {
-          onUpdateStatus(todo);
-        }}
+        // onClick={() => {
+        //   onUpdateStatus(todo);
+        // }}
       >
         <input
           id="todo-status"
@@ -103,24 +121,49 @@ export const TodoItem: React.FC<Props> = ({
             setTitle(e.target.value);
             onToggleStatus(todo);
           }}
-          onDoubleClick={handleSave}
+          onDoubleClick={() => {
+            setIsEditing(true);
+          }}
         />
       </label>
-      <span data-cy="TodoTitle" className="todo__title" id="todo-title">
-        {todo.title}
-      </span>
+      {isEditing ? (
+        <input
+          data-cy="TodoTitleField"
+          value={newTitle}
+          type="text"
+          className="todo-title-field"
+          onChange={e => setNewTitle(e.target.value)}
+          onKeyDown={handleKeyDown}
+          ref={editInputRef}
+        />
+      ) : (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          id="todo-title"
+          onDoubleClick={() => {
+            setIsEditing(true);
+          }}
+        >
+          {todo.title}
+        </span>
+      )}
       {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => {
-          setDeletedId(el.id);
-          removeTodo(el.id);
-        }}
-      >
-        ×
-      </button>
+      {isEditing ? (
+        ''
+      ) : (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={() => {
+            setDeletedId(todo.id);
+            removeTodo(todo.id);
+          }}
+        >
+          ×
+        </button>
+      )}
       <Loader isLoading={isThisTodoLoading} />
     </div>
   );
