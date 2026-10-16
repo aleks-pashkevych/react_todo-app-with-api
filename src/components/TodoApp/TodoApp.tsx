@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
 import { Todo } from '../../types/Todo';
 import { client } from '../../utils/fetchClient';
 // import { patchTodo } from '../../api/todos';
@@ -165,6 +162,7 @@ export const TodoApp: React.FC<Props> = ({
           className={`todo ${tempTodo.completed ? 'completed' : ''}`}
           key={tempTodo.id}
         >
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label className="todo__status-label">
             <input
               data-cy="TodoStatus"
