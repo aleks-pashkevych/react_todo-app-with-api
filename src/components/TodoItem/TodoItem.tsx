@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { useEffect, useState, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/';
@@ -97,9 +96,9 @@ export const TodoItem: React.FC<Props> = ({
       data-cy="Todo"
       className={`todo ${todo.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`}
     >
-      <label htmlFor="todo-status" className="todo__status-label">
+      <label htmlFor={`todo-status-${todo.id}`} className="todo__status-label">
         <input
-          id="todo-status"
+          id={`todo-status-${todo.id}`}
           data-cy="TodoStatus"
           type="checkbox"
           className={`todo__status ${todo.completed ? 'completed' : ''}`}

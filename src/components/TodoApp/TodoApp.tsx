@@ -85,18 +85,12 @@ export const TodoApp: React.FC<Props> = ({
     }
   };
 
-  // const addLoadingId = (id: number) => {
-  //   setLoadingTodoIds(prev => [...prev, id]);
-  // };
-
   const removeLoadingId = (id: number) => {
     setLoadingTodoIds(prev => prev.filter(loadingId => loadingId !== id));
   };
 
   const handleToggleStatus = async (todoToUpdate: Todo) => {
-    // 1. Set loading state BEFORE async call
     setLoadingTodoIds(current => [...current, todoToUpdate.id]);
-    // addLoadingId(todoToUpdate.id);
     setIsError(false);
 
     try {
@@ -138,7 +132,7 @@ export const TodoApp: React.FC<Props> = ({
     } catch (error) {
       setIsError(true);
       setErrorMessage(ErrorMessages.Update);
-      throw error; // Обязательно пробрасываем ошибку, чтобы срабатывал catch в TodoItem
+      throw error;
     }
   };
 
