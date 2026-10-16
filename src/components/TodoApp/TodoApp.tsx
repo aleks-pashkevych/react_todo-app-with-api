@@ -1,6 +1,5 @@
 import { Todo } from '../../types/Todo';
 import { client } from '../../utils/fetchClient';
-// import { patchTodo } from '../../api/todos';
 import { Loader } from '../Loader';
 import { useState } from 'react';
 import { TodoItem } from '../TodoItem';
