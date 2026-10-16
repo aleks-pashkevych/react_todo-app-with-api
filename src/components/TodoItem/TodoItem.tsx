@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import { useEffect, useState, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/';
@@ -44,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const isThisTodoLoading =
     loadingTodoIds.includes(todo.id) ||
-    todo.id == deletedId ||
+    todo.id === deletedId ||
     isLoading ||
     isUpdating;
 
@@ -96,9 +95,9 @@ export const TodoItem: React.FC<Props> = ({
       data-cy="Todo"
       className={`todo ${todo.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`}
     >
-      <label htmlFor={`todo-status-${todo.id}`} className="todo__status-label">
+      {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+      <label className="todo__status-label">
         <input
-          id={`todo-status-${todo.id}`}
           data-cy="TodoStatus"
           type="checkbox"
           className={`todo__status ${todo.completed ? 'completed' : ''}`}
@@ -117,6 +116,7 @@ export const TodoItem: React.FC<Props> = ({
         <input
           data-cy="TodoTitleField"
           value={newTitle}
+          id="TodoTitleField"
           type="text"
           className="todo__title-field"
           onChange={e => setNewTitle(e.target.value)}
