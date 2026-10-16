@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-// import React, { useState, useRef, useEffect } from 'react';
 import { useEffect, useState, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/';
@@ -30,7 +29,6 @@ export const TodoItem: React.FC<Props> = ({
   setTitle,
   isLoading,
   onUpdateTitle,
-  // onDelete
   removeTodo,
   deletedId,
   setDeletedId,
@@ -59,8 +57,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleSave = async () => {
     const trimmedTitle = newTitle.trim();
-
-    // setNewTitle(trimmedTitle);
 
     if (!trimmedTitle) {
       setDeletedId(todo.id);
@@ -100,11 +96,8 @@ export const TodoItem: React.FC<Props> = ({
     <div
       data-cy="Todo"
       className={`todo ${todo.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`}
-      // onDoubleClick={() => {
-      //   setIsEditing(true);
-      // }}
     >
-      <label htmlFor="status" className="todo__status-label">
+      <label htmlFor="todo-status" className="todo__status-label">
         <input
           id="todo-status"
           data-cy="TodoStatus"
